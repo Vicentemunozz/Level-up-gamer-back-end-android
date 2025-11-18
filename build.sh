@@ -18,6 +18,27 @@ if [ -f "./mvnw" ] && [ ! -x "./mvnw" ]; then
   chmod +x ./mvnw || true
 fi
 
+# Diagnostic block: print java/javac info and available JVMs so Render build logs show what's installed
+echo "--- Diagnostic: environment ---"
+echo "PATH=$PATH"
+echo "Which java: $(command -v java || true)"
+echo "Which javac: $(command -v javac || true)"
+if [ -x "$JAVA_HOME/bin/java" ]; then
+  echo "java from JAVA_HOME:"; "$JAVA_HOME/bin/java" -version || true
+else
+  echo "NOTE: $JAVA_HOME/bin/java is not executable or does not exist"
+fi
+if [ -x "$JAVA_HOME/bin/javac" ]; then
+  echo "javac from JAVA_HOME:"; "$JAVA_HOME/bin/javac" -version || true
+else
+  echo "NOTE: $JAVA_HOME/bin/javac is not executable or does not exist"
+fi
+echo "Listing /usr/lib/jvm (if present):"
+ls -la /usr/lib/jvm || true
+echo "Find java installations under /usr/lib/jvm:"
+find /usr/lib/jvm -maxdepth 3 -type f -name java -o -name javac 2>/dev/null || true
+echo "--- End diagnostic ---"
+
 # Run the maven build (skip tests for faster build in CI; remove -DskipTests if you want tests)
 ./mvnw -B -DskipTests clean package
 
